@@ -97,3 +97,149 @@ npm test                 # 19 tests (vitest)
 | **Optimización** | SVGO (servidor) + minificador ligero (cliente/worker) |
 | **Backend** | Next.js Route Handlers (API) |
 | **Tests** | Vitest |
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+src/
+├── app/                    # Página principal + API routes
+│   └── api/                # trace · analyze · preprocess · optimize
+├── components/
+│   ├── panels/             # Opciones, Capas, Resultados
+│   ├── editor/             # Editor de nodos (Fabric.js)
+│   └── toolbar/            # Exportación
+├── hooks/
+├── services/               # Carga de imágenes + pool de Web Workers
+├── store/                  # Estado global (Zustand)
+├── utils/                  # color, svg, parsePath, layers
+├── workers/                # tracer.worker.ts
+├── processing/
+│   ├── potrace/            # Motor Potrace (geometry, bitmap, algoritmo)
+│   ├── quantization/       # median-cut
+│   ├── preprocess/         # ruido, fondo, contraste
+│   ├── analysis/           # análisis + clasificación
+│   └── pipeline.ts         # orquestador (puro, sin DOM)
+├── export/                 # PDF, EPS, DXF, AI, PNG/WEBP, SVGO
+└── types/                  # tipos compartidos del dominio
+```
+
+El **pipeline** (`processing/pipeline.ts`) es una función **pura sin dependencias de DOM**,
+por lo que corre idéntica en tres contextos: **Web Worker**, fallback síncrono en el
+navegador, y **servidor** (Route Handlers). Cada archivo tiene una única responsabilidad.
+
+> 📚 Más detalle en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) y
+> [`docs/PROCESSING.md`](docs/PROCESSING.md). Guía de debugging por etapas en
+> [`docs/ETAPAS.md`](docs/ETAPAS.md).
+
+---
+
+## 🔌 API
+
+| Ruta | Método | Descripción |
+|------|--------|-------------|
+| `/api/trace` | POST | Vectoriza un buffer RGBA (JSON) y devuelve el `TraceResult` |
+| `/api/analyze` | POST | Analiza la imagen (colores, ruido, tipo…) |
+| `/api/preprocess` | POST | Aplica preprocesado (ruido, fondo, contraste) |
+| `/api/optimize` | POST | Optimiza un SVG con **SVGO** en el servidor |
+
+> En el navegador la vectorización corre en un **Web Worker** (mejor rendimiento y sin
+> sobrecargar el servidor). Las rutas API exponen el mismo pipeline en el backend.
+
+---
+
+## ⚙️ Variables de entorno
+
+| Variable | Descripción | Defecto |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_APP_NAME` | Nombre mostrado en la app | `Vector Studio AI` |
+| `API_MAX_BODY_MB` | Límite de subida en API (MB) | `50` |
+| `AI_RUNTIME` | `pure` (motor JS) u `onnxruntime-node` (experimental) | `pure` |
+| `REALESRGAN_MODEL_PATH` / `SAM_MODEL_PATH` / `BGR_MODEL_PATH` | Pesos ONNX opcionales | *(vacío)* |
+
+---
+
+## 🐳 Docker
+
+```bash
+docker compose up --build
+# → http://localhost:3000
+```
+
+El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
+
+---
+
+## 🖥️ Cómo usar
+
+1. **Arrastra una imagen** (PNG, JPG, WEBP, BMP, TIFF) o haz clic en *"Elegir archivo"*.
+2. El sistema **analiza** la imagen y la **vectoriza automáticamente** en pocos segundos.
+3. Ajusta **cantidad de colores, suavizado, simplificación, precisión…** con vista previa en vivo.
+4. En el **visor** compara original vs. vector (deslizador) y revisa los **nodos Bézier**.
+5. Usa el **panel de capas** para refinar colores y formas.
+6. **Exporta** en el formato que necesites para tu flujo de trabajo.
+
+---
+
+## ⚠️ Decisiones de arquitectura
+
+- **Motor de trazado propio (Potrace en TypeScript)** en lugar de depender de binarios
+  nativos (`potrace`/`opencv`) — portabilidad total a navegador y Docker.
+- **SVGO en el servidor** + minificador ligero en cliente/worker para no inflar el bundle
+  (página cliente: ~138 kB).
+- Los modelos de IA pesados (**Real-ESRGAN, SAM, eliminación de fondo**) requieren pesos ONNX
+  de cientos de MB. Se deja el **cableado listo** (`.env`, `AI_RUNTIME`, rutas, punto de
+  enchufe en el pipeline), con el motor `pure` 100% funcional como defecto. Puedes añadir los
+  pesos y un runtime ONNX sin tocar el núcleo.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Motor Potrace en TypeScript (validado con tests)
+- [x] Cuantización median-cut + capas de color separadas
+- [x] Análisis automático + clasificación de tipo de imagen
+- [x] Visor con zoom/pan sincronizados y comparador deslizante
+- [x] Editor de nodos con Fabric.js
+- [x] Exportación SVG/PNG/WEBP/PDF/EPS/AI/DXF
+- [x] Docker + docker-compose
+- [ ] Integración ONNX (Real-ESRGAN, SAM) con pesos descargables
+- [ ] Edición avanzada de nodos (añadir/eliminar, subdividir curvas)
+- [ ] Modo batch / API de procesamiento masivo
+- [ ] Atajos de teclado y historial de deshacer
+
+---
+
+## ✅ Calidad
+
+- TypeScript **estricto** (`strict: true`).
+- **19 tests** con Vitest: motor Potrace, cuantización, pipeline end-to-end y exportadores.
+- Build de producción validado (`npm run build`).
+
+---
+
+## 🤝 Contribuir
+
+1. Haz un fork del repositorio.
+2. Crea una rama: `git checkout -b feature/mi-mejora`.
+3. Haz tus cambios siguiendo las convenciones (un archivo, una responsabilidad).
+4. Verifica: `npm run typecheck && npm test`.
+5. Envía un Pull Request describiendo el cambio.
+
+---
+
+## 📄 Licencia
+
+Distribuido bajo licencia **MIT** para el código de la aplicación.
+
+> El motor Potrace está basado en el algoritmo de Peter Selinger (GPL) a través de un port
+> JavaScript (MIT) de referencia. Revisa las fuentes originales para confirmar la licencia
+> aplicable a tu uso del algoritmo de trazado.
+
+---
+
+<p align="center">
+  Hecho con ❤️ para diseñadores, impresores y creadores.
+</p>
+
