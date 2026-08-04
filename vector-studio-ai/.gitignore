@@ -1,0 +1,29 @@
+# Node
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Tests / coverage
+coverage/
+
+# Optional heavy AI weights (download separately)
+models/*.onnx
+models/*.pt
+!models/.gitkeep

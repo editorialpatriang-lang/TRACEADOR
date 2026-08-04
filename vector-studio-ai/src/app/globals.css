@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 0 0% 98%;
+  --surface-raised: 0 0% 100%;
+  --surface-hover: 0 0% 93%;
+  --accent: 262 83% 58%;
+  --accent-fg: 0 0% 100%;
+  --border: 0 0% 88%;
+  --text: 220 10% 14%;
+  --text-muted: 220 6% 42%;
+}
+
+.dark {
+  --surface: 230 12% 9%;
+  --surface-raised: 230 12% 13%;
+  --surface-hover: 230 12% 18%;
+  --accent: 262 83% 62%;
+  --accent-fg: 0 0% 100%;
+  --border: 230 10% 22%;
+  --text: 220 15% 92%;
+  --text-muted: 220 8% 62%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-[hsl(var(--text))] antialiased;
+  background-color: hsl(var(--surface));
+  color: hsl(var(--text));
+}
+
+/* Scrollbar fino */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Checkerboard para fondos transparentes */
+.checkerboard {
+  background-image: conic-gradient(
+    hsl(var(--border)) 0 25%,
+    transparent 0 50%,
+    hsl(var(--border)) 0 75%,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
+
+/* Barra de progreso animada */
+@keyframes indeterminate {
+  0% { left: -40%; }
+  100% { left: 110%; }
+}
+.progress-indeterminate {
+  animation: indeterminate 1.2s ease-in-out infinite;
+}
+
+/* Range inputs personalizados */
+input[type="range"] {
+  @apply appearance-none bg-transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  @apply h-1.5 rounded-full;
+  background: hsl(var(--border));
+}
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none h-3.5 w-3.5 rounded-full border-0;
+  margin-top: -4px;
+  background: hsl(var(--accent));
+  box-shadow: 0 0 0 3px hsl(var(--surface-raised)), 0 0 6px hsl(var(--accent) / 0.4);
+}

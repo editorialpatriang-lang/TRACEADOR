@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  vector-studio-ai:
+    build: .
+    container_name: vector-studio-ai
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_APP_NAME: "Vector Studio AI"
+      AI_RUNTIME: pure
+    restart: unless-stopped
+    volumes:
+      - ./models:/app/models:ro
