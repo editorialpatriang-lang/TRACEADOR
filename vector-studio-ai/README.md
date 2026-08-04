@@ -1,47 +1,48 @@
-# 🧪 Vector Studio AI
+# Vector Studio AI
 
-> **Convierte imágenes raster en vectores SVG editables de alta calidad — directo en tu navegador.**
+> Convierte imágenes raster (PNG, JPG, WEBP, BMP, TIFF) en vectores SVG editables de alta calidad, directamente en tu navegador.
 
-Vector Studio AI es una aplicación web profesional que transforma **PNG, JPG, WEBP, BMP y TIFF**
-en **vectores limpios y editables**, pensada para **logotipos, ilustraciones, stickers, DTF,
+![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript estricto](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Potrace 100% TS](https://img.shields.io/badge/Potrace-100%25_TS-8A2BE2)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-19%20passing-2ea44f)
+
+Vector Studio AI es una aplicación web profesional que transforma imágenes raster en
+**vectores limpios y editables**, pensada para **logotipos, ilustraciones, stickers, DTF,
 serigrafía, corte láser, CNC e impresión**.
 
-No es un simple *trace*: el sistema hace **cuantización perceptual de color**, **análisis
+No es un simple *trace*: el sistema aplica **cuantización perceptual de color**, **análisis
 automático de la imagen** y **trazado por capas con curvas Bézier optimizadas**, con un
 resultado comparable a servicios comerciales como *Vectorizer.ai* o *Novage*.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs&logoColor=white" alt="Next.js 15" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript estricto" />
-  <img src="https://img.shields.io/badge/Potrace-100%25%20TS-8A2BE2" alt="Motor Potrace en TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/19%20tests-passing-2ea44f" alt="19 tests" />
-</p>
+---
+
+## Tabla de contenidos
+
+- [Características](#características)
+- [Inicio rápido](#inicio-rápido)
+- [Stack tecnológico](#stack-tecnológico)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [API](#api)
+- [Variables de entorno](#variables-de-entorno)
+- [Docker](#docker)
+- [Uso](#uso)
+- [Decisiones de arquitectura](#decisiones-de-arquitectura)
+- [Roadmap](#roadmap)
+- [Calidad](#calidad)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
 
 ---
 
-## 📑 Tabla de contenidos
+## Características
 
-- [✨ Características](#-características)
-- [🚀 Inicio rápido](#-inicio-rápido)
-- [🧱 Stack tecnológico](#-stack-tecnológico)
-- [📁 Estructura del proyecto](#-estructura-del-proyecto)
-- [🔌 API](#-api)
-- [⚙️ Variables de entorno](#️-variables-de-entorno)
-- [🐳 Docker](#-docker)
-- [🖥️ Cómo usar](#️-cómo-usar)
-- [🗺️ Roadmap](#️-roadmap)
-- [🤝 Contribuir](#-contribuir)
-- [📄 Licencia](#-licencia)
+### Vectorización inteligente
 
----
-
-## ✨ Características
-
-### 🧠 Vectorización inteligente
-- **Motor Potrace real en TypeScript** — port fiel del algoritmo de Peter Selinger con ajuste
-  de curvas por **mínimos cuadrados**, detección de esquinas y **optimización de segmentos**.
+- **Motor Potrace real en TypeScript** — port fiel del algoritmo de Peter Selinger, con
+  ajuste de curvas por mínimos cuadrados, detección de esquinas y optimización de segmentos.
 - **Cuantización de color por *median cut*** → capas de color perfectamente separadas, sin
   costuras ni dobles rellenos.
 - **Análisis automático** de la imagen: colores, ruido, contraste, transparencia y fondo.
@@ -49,22 +50,23 @@ resultado comparable a servicios comerciales como *Vectorizer.ai* o *Novage*.
 - **Preprocesado**: reducción de ruido, eliminación de fondo, corrección de contraste y
   reducción de artefactos JPG.
 
-### 🎛️ Experiencia profesional
-- **Vista previa instantánea** al mover cualquier parámetro (con debounce).
-- **Visor Original / Vector** con **zoom y pan sincronizados** y **comparador deslizante**.
+### Experiencia profesional
+
+- **Vista previa instantánea** al modificar cualquier parámetro (con debounce).
+- **Visor Original / Vector** con zoom y pan sincronizados y comparador deslizante.
 - **Overlay de nodos Bézier** y **editor de nodos con Fabric.js** (puntos y manecillas
   arrastrables sobre cada capa).
-- **Panel de capas**: ocultar, cambiar color, eliminar y **fusionar**.
-- **Exportación** a **SVG · PNG · WEBP · PDF · EPS · AI · DXF**.
+- **Panel de capas**: ocultar, cambiar color, eliminar y fusionar.
+- **Exportación** a SVG · PNG · WEBP · PDF · EPS · AI · DXF.
 - Procesamiento en **Web Workers** (no bloquea la UI), **dark/light mode** y diseño
   responsive inspirado en Figma / Canva / Illustrator.
 
 ---
 
-## 🚀 Inicio rápido
+## Inicio rápido
 
 ```bash
-# Requisitos: Node.js ≥ 18.18 (recomendado 20+)
+# Requisitos: Node.js >= 18.18 (recomendado 20+)
 git clone https://github.com/<tu-usuario>/vector-studio-ai.git
 cd vector-studio-ai
 
@@ -73,7 +75,7 @@ npm install
 # Variables de entorno (opcional)
 cp .env.example .env.local
 
-# Desarrollo  →  http://localhost:3000
+# Desarrollo  ->  http://localhost:3000
 npm run dev
 npm run dev:turbo        # con Turbopack
 
@@ -88,19 +90,19 @@ npm test                 # 19 tests (vitest)
 
 ---
 
-## 🧱 Stack tecnológico
+## Stack tecnológico
 
 | Capa | Tecnologías |
 |------|-------------|
-| **Frontend** | Next.js 15 · React 19 · TypeScript (estricto) · Tailwind CSS · Framer Motion · Fabric.js · React Query · Zustand |
-| **Procesado** | Motor Potrace propio (TS) · Cuantización median-cut · Análisis de imagen |
-| **Optimización** | SVGO (servidor) + minificador ligero (cliente/worker) |
-| **Backend** | Next.js Route Handlers (API) |
-| **Tests** | Vitest |
+| Frontend | Next.js 15, React 19, TypeScript (estricto), Tailwind CSS, Framer Motion, Fabric.js, React Query, Zustand |
+| Procesado | Motor Potrace propio (TS), cuantización median-cut, análisis de imagen |
+| Optimización | SVGO (servidor) + minificador ligero (cliente/worker) |
+| Backend | Next.js Route Handlers (API) |
+| Tests | Vitest |
 
 ---
 
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 src/
@@ -127,15 +129,15 @@ src/
 
 El **pipeline** (`processing/pipeline.ts`) es una función **pura sin dependencias de DOM**,
 por lo que corre idéntica en tres contextos: **Web Worker**, fallback síncrono en el
-navegador, y **servidor** (Route Handlers). Cada archivo tiene una única responsabilidad.
+navegador y **servidor** (Route Handlers). Cada archivo tiene una única responsabilidad.
 
-> 📚 Más detalle en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) y
+> Mas detalle en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) y
 > [`docs/PROCESSING.md`](docs/PROCESSING.md). Guía de debugging por etapas en
 > [`docs/ETAPAS.md`](docs/ETAPAS.md).
 
 ---
 
-## 🔌 API
+## API
 
 | Ruta | Método | Descripción |
 |------|--------|-------------|
@@ -149,7 +151,7 @@ navegador, y **servidor** (Route Handlers). Cada archivo tiene una única respon
 
 ---
 
-## ⚙️ Variables de entorno
+## Variables de entorno
 
 | Variable | Descripción | Defecto |
 |----------|-------------|---------|
@@ -160,18 +162,18 @@ navegador, y **servidor** (Route Handlers). Cada archivo tiene una única respon
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ```bash
 docker compose up --build
-# → http://localhost:3000
+# -> http://localhost:3000
 ```
 
 El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
 
 ---
 
-## 🖥️ Cómo usar
+## Uso
 
 1. **Arrastra una imagen** (PNG, JPG, WEBP, BMP, TIFF) o haz clic en *"Elegir archivo"*.
 2. El sistema **analiza** la imagen y la **vectoriza automáticamente** en pocos segundos.
@@ -182,7 +184,7 @@ El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
 
 ---
 
-## ⚠️ Decisiones de arquitectura
+## Decisiones de arquitectura
 
 - **Motor de trazado propio (Potrace en TypeScript)** en lugar de depender de binarios
   nativos (`potrace`/`opencv`) — portabilidad total a navegador y Docker.
@@ -190,12 +192,12 @@ El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
   (página cliente: ~138 kB).
 - Los modelos de IA pesados (**Real-ESRGAN, SAM, eliminación de fondo**) requieren pesos ONNX
   de cientos de MB. Se deja el **cableado listo** (`.env`, `AI_RUNTIME`, rutas, punto de
-  enchufe en el pipeline), con el motor `pure` 100% funcional como defecto. Puedes añadir los
-  pesos y un runtime ONNX sin tocar el núcleo.
+  enchufe en el pipeline), con el motor `pure` 100% funcional como defecto. Puedes añadir
+  los pesos y un runtime ONNX sin tocar el núcleo.
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [x] Motor Potrace en TypeScript (validado con tests)
 - [x] Cuantización median-cut + capas de color separadas
@@ -211,7 +213,7 @@ El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
 
 ---
 
-## ✅ Calidad
+## Calidad
 
 - TypeScript **estricto** (`strict: true`).
 - **19 tests** con Vitest: motor Potrace, cuantización, pipeline end-to-end y exportadores.
@@ -219,7 +221,7 @@ El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
 
 ---
 
-## 🤝 Contribuir
+## Contribuir
 
 1. Haz un fork del repositorio.
 2. Crea una rama: `git checkout -b feature/mi-mejora`.
@@ -229,7 +231,7 @@ El `Dockerfile` usa el output **standalone** de Next.js para una imagen mínima.
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Distribuido bajo licencia **MIT** para el código de la aplicación.
 
@@ -239,7 +241,5 @@ Distribuido bajo licencia **MIT** para el código de la aplicación.
 
 ---
 
-<p align="center">
-  Hecho con ❤️ para diseñadores, impresores y creadores.
-</p>
+*Hecho para diseñadores, impresores y creadores.*
 
