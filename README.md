@@ -67,8 +67,8 @@ resultado comparable a servicios comerciales como *Vectorizer.ai* o *Novage*.
 
 ```bash
 # Requisitos: Node.js >= 18.18 (recomendado 20+)
-git clone https://github.com/<tu-usuario>/vector-studio-ai.git
-cd vector-studio-ai
+git clone https://github.com/<tu-usuario>/TRACEADOR.git
+cd TRACEADOR
 
 npm install
 
