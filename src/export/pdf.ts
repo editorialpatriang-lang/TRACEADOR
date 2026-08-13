@@ -45,12 +45,13 @@ function toPdfBody(commands: PathCommand[], height: number): string {
 /**
  * Genera un documento PDF en Uint8Array.
  */
-export function generatePdf(layers: ColorLayer[], width: number, height: number): Uint8Array {
+export function generatePdf(layers: ColorLayer[], width: number, height: number, hidden?: Set<string>): Uint8Array {
+  const visible = hidden ? layers.filter((l) => !hidden.has(l.hex)) : layers;
   const blocks: string[] = [];
   blocks.push("%PDF-1.4");
   blocks.push("%\u00e2\u00e3\u00cf\u00d3");
 
-  const content = layers
+  const content = visible
     .map((layer) => {
       const c = hexToPdfColor(layer.hex);
       const body = toPdfBody(parsePath(layer.path), height);

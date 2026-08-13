@@ -25,13 +25,17 @@ export function exportSvg(result: TraceResult): Blob {
 }
 
 /* --------------------------- EPS ------------------------------- */
-export function exportEps(layers: ColorLayer[], width: number, height: number): string {
+export function exportEps(layers: ColorLayer[], width: number, height: number, hidden?: Set<string>): string {
+  const visible = hidden ? layers.filter((l) => !hidden.has(l.hex)) : layers;
   const parts: string[] = [];
   parts.push("%!PS-Adobe-3.0 EPSF-3.0");
   parts.push(`%%BoundingBox: 0 0 ${fmt(width)} ${fmt(height)}`);
   parts.push("%%Creator: Vector Studio AI");
   parts.push("%%EndComments");
-  for (const layer of layers) {
+  // PostScript usa Y hacia arriba; el SVG (y los paths) usan Y hacia abajo.
+  // Espejamos verticalmente para que coincida con la previsualización.
+  parts.push(`${fmt(height)} 0 translate 1 -1 scale`);
+  for (const layer of visible) {
     const commands = parsePath(layer.path);
     parts.push(`${hexRgb(layer.hex)} setrgbcolor`);
     parts.push(epsPath(commands));
@@ -130,7 +134,8 @@ export function downloadBlob(blob: Blob | Uint8Array, filename: string, mime = "
 export async function exportVector(
   result: TraceResult,
   format: ExportFormat,
-  baseName = "vector-studio"
+  baseName = "vector-studio",
+  hidden?: Set<string>
 ): Promise<void> {
   const { width, height, layers } = result;
   switch (format) {
@@ -144,10 +149,10 @@ export async function exportVector(
       downloadBlob(await svgToBlob(result, "image/webp"), `${baseName}.webp`, "image/webp");
       break;
     case "pdf":
-      downloadBlob(generatePdf(layers, width, height), `${baseName}.pdf`, "application/pdf");
+      downloadBlob(generatePdf(layers, width, height, hidden), `${baseName}.pdf`, "application/pdf");
       break;
     case "eps":
-      downloadBlob(new Blob([exportEps(layers, width, height)], { type: "application/postscript" }), `${baseName}.eps`);
+      downloadBlob(new Blob([exportEps(layers, width, height, hidden)], { type: "application/postscript" }), `${baseName}.eps`);
       break;
     case "ai":
       downloadBlob(exportAi(layers, width, height), `${baseName}.ai`, "application/pdf");

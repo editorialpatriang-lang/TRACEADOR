@@ -83,7 +83,7 @@ export default function Viewer() {
                 <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - compare}% 0 0)` }}>
                   <img src={originalUrl} width={result.width} height={result.height} className="select-none" draggable={false} alt="Original" />
                 </div>
-                <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${compare}%)` }} dangerouslySetInnerHTML={{ __html: svgMarkup }} />
+                <div className="absolute inset-0 vector-svg-wrap" style={{ clipPath: `inset(0 0 0 ${compare}%)` }} dangerouslySetInnerHTML={{ __html: svgMarkup }} />
               </div>
             </div>
             <input
@@ -109,7 +109,7 @@ export default function Viewer() {
               <Label text="Vector" />
               <div className="h-full w-full overflow-hidden bg-[hsl(var(--surface))]">
                 <Wrapper transform={transform}>
-                  <div style={paneStyle} dangerouslySetInnerHTML={{ __html: svgMarkup }} />
+                  <div style={paneStyle} className="vector-svg-wrap" dangerouslySetInnerHTML={{ __html: svgMarkup }} />
                   {showNodes && <NodesOverlay zoom={zoom} />}
                 </Wrapper>
               </div>

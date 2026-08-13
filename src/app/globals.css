@@ -59,6 +59,13 @@ body {
   background-size: 16px 16px;
 }
 
+/* El SVG del vector debe llenar su contenedor (paneStyle) al hacer zoom. */
+.vector-svg-wrap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* Barra de progreso animada */
 @keyframes indeterminate {
   0% { left: -40%; }
