@@ -22,7 +22,7 @@ export function useTheme(): void {
 
   // Inicialización: leer tema persistido / preferencia del sistema
   useEffect(() => {
-    let initial = "dark" as "dark" | "light";
+    let initial = "light" as "dark" | "light";
     try {
       const stored = localStorage.getItem(KEY);
       if (stored === "light" || stored === "dark") initial = stored;
