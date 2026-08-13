@@ -2,9 +2,10 @@
 /**
  * Cabecera de la aplicación: marca, acciones y toggle de tema.
  */
-import { Moon, Sun, Wand2, X } from "lucide-react";
+import { Moon, Sun, X } from "lucide-react";
 import { useStudioStore } from "@/store/useStudioStore";
 import ExportMenu from "./toolbar/ExportMenu";
+import LogoEdipa from "./LogoEdipa";
 
 export default function Header() {
   const theme = useStudioStore((s) => s.theme);
@@ -17,9 +18,7 @@ export default function Header() {
   return (
     <header className="flex h-14 items-center justify-between border-b border-[hsl(var(--border))] bg-surface-raised px-4">
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-fg))]">
-          <Wand2 size={18} />
-        </div>
+        <LogoEdipa className="h-8 w-auto text-[#322e64] dark:text-white" />
         <div className="leading-tight">
           <h1 className="text-sm font-bold text-[hsl(var(--text))]">Vector Studio AI</h1>
           <p className="text-[10px] text-[hsl(var(--text-muted))]">Raster → Vector editable</p>
