@@ -63,7 +63,7 @@ export default function Viewer() {
 
   if (!image || !result) return null;
 
-  const transform = `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`;
+  const transform = `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px))`;
   const paneStyle = { width: result.width * zoom, height: result.height * zoom };
 
   return (
