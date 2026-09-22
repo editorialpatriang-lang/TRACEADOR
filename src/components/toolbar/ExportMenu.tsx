@@ -10,6 +10,7 @@ import { ExportFormat } from "@/types";
 
 export default function ExportMenu() {
   const result = useStudioStore((s) => s.result);
+  const hidden = useStudioStore((s) => s.hidden);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<ExportFormat | null>(null);
 
@@ -18,7 +19,7 @@ export default function ExportMenu() {
     setBusy(format);
     try {
       const base = `vector-studio-${result.width}x${result.height}`;
-      await exportVector(result, format, base);
+      await exportVector(result, format, base, hidden);
     } finally {
       setBusy(null);
       setOpen(false);

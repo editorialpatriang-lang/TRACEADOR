@@ -70,7 +70,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   options: { ...DEFAULT_VECTOR_OPTIONS },
   result: null,
   analysis: null,
-  theme: "dark",
+  theme: "light",
   tool: "select",
   zoom: 1,
   pan: { x: 0, y: 0 },
