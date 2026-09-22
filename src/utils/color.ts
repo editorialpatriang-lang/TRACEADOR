@@ -88,24 +88,3 @@ export function isNearWhite(r: number, g: number, b: number, tol = 40): boolean 
 export function grayscaleAmount(r: number, g: number, b: number): number {
   return 1 - Math.max(r, g, b) + Math.min(r, g, b) / 510; // aproximación rápida
 }
-
-/** Nombre genérico del color (para UI y clasificación). */
-export function colorName(rgb: RGB): string {
-  const { h, s, l } = rgbToHsl(rgb.r, rgb.g, rgb.b);
-  if (l < 0.12) return "negro";
-  if (l > 0.88) return "blanco";
-  if (s < 0.12) return l < 0.5 ? "gris oscuro" : "gris claro";
-  if (h < 15 || h >= 345) return "rojo";
-  if (h < 45) return "naranja";
-  if (h < 70) return "amarillo";
-  if (h < 160) return "verde";
-  if (h < 200) return "cian";
-  if (h < 255) return "azul";
-  if (h < 290) return "violeta";
-  return "magenta";
-}
-
-/** Serializa un array de colores hex a su forma compacta (para métricas). */
-export function paletteToHex(palette: RGB[]): string[] {
-  return palette.map((c) => rgbToHex(c.r, c.g, c.b));
-}

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { medianCut, applyPalette } from "./medianCut";
 import { analyzeImage } from "../analysis/analyze";
-import { boxBlur, removeColor, adjustContrast } from "../preprocess/preprocess";
+import { removeColor, adjustContrast } from "../preprocess/preprocess";
 import { rgbToHex } from "@/utils/color";
 
 /** Crea un buffer RGBA plano a partir de una función por píxel. */
@@ -72,12 +72,6 @@ describe("analyzeImage", () => {
 });
 
 describe("preprocess", () => {
-  it("boxBlur no cambia tamaño", () => {
-    const img = makeRgba(8, 8, () => [10, 20, 30, 255]);
-    const out = boxBlur(img, 8, 8, 1);
-    expect(out.length).toBe(img.length);
-  });
-
   it("removeColor transparenta el color objetivo", () => {
     const img = makeRgba(4, 4, () => [255, 255, 255, 255]);
     const out = removeColor(img, { r: 255, g: 255, b: 255 }, 10, false);

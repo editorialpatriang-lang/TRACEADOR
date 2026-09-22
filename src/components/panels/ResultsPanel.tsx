@@ -21,6 +21,7 @@ export default function ResultsPanel() {
   const result = useStudioStore((s) => s.result);
   const status = useStudioStore((s) => s.status);
   const analysis = useStudioStore((s) => s.analysis);
+  const image = useStudioStore((s) => s.image);
 
   if (!result) {
     return (
@@ -51,12 +52,17 @@ export default function ResultsPanel() {
           <span className="text-sm font-medium text-[hsl(var(--text))]">{KIND_LABELS[kind]}</span>
         </div>
         <div className="flex items-center justify-between py-1.5">
-          <span className="text-sm text-[hsl(var(--text-muted))]">Resolución</span>
+          <span className="text-sm text-[hsl(var(--text-muted))]">Resolución trazada</span>
           <span className="font-mono text-sm text-[hsl(var(--text))]">
             {result.width} × {result.height}
           </span>
         </div>
       </div>
+      {image?.downscaled && (
+        <p className="mt-2 text-xs text-[hsl(var(--text-muted))]">
+          Imagen reducida de {image.originalWidth} × {image.originalHeight} a {result.width} px para trazar más rápido. El vector no pierde nitidez.
+        </p>
+      )}
       {status === "processing" && (
         <div className="mt-2 text-xs text-[hsl(var(--text-muted))]">
           <div className="relative mb-1 h-1 overflow-hidden rounded-full bg-surface-hover">

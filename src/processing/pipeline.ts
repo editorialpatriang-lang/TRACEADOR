@@ -44,10 +44,24 @@ function detectBorderBackground(rgba: Uint8ClampedArray, w: number, h: number): 
   return n === 0 ? { r: 255, g: 255, b: 255 } : { r: sum.r / n, g: sum.g / n, b: sum.b / n };
 }
 
-/** Traduce opciones de UI a parámetros Potrace. */
+/** Traduce opciones de UI a parámetros Potrace. Cada control del panel tiene
+ *  efecto real aquí:
+ *  - precisión: baja la tolerancia de las motas (turdSize) cuanto más alta.
+ *  - detalle: conserva contornos pequeños (turdSize menor) cuanto más alto.
+ *  - simplificación: tolerancia del ajuste de curvas Bézier.
+ *  - suavizado: redondea esquinas (alphaMax) cuanto más alto.
+ *  - detección de esquinas: fuerza esquinas vivas aunque el suavizado sea alto.
+ */
 function toTraceParams(options: VectorOptions): TraceParams {
-  const turdSize = Math.max(options.minRadius, Math.round(options.denoise / 20));
-  const alphaMax = 0.5 + options.cornerDetection * 1.5;
+  const speckle = Math.max(options.minRadius, Math.round(options.denoise / 20));
+  const precisionKeep = Math.round(((100 - options.precision) / 100) * 6);
+  const detailKeep = Math.round(((100 - options.detail) / 100) * 8);
+  const turdSize = Math.max(0, speckle + precisionKeep + detailKeep);
+
+  const smoothingAlpha = 0.4 + (options.smoothing / 100) * 1.6;
+  const cornerAlpha = 0.4 + options.cornerDetection * 1.6;
+  const alphaMax = Math.min(smoothingAlpha, cornerAlpha);
+
   const optTolerance = 0.05 + (options.simplification / 100) * 1.5;
   return {
     turnPolicy: "minority",
@@ -61,7 +75,33 @@ function toTraceParams(options: VectorOptions): TraceParams {
     background: "transparent",
     width: null,
     height: null,
+    detectHoles: options.detectHoles,
   };
+}
+
+/** Perfiles por modo. Cada modo fija los parámetros que más cambian el
+ *  resultado; el resto de controles del usuario se respetan tal cual. */
+const MODE_PROFILES: Partial<Record<VectorOptions["mode"], Partial<VectorOptions>>> = {
+  logo: { colorCount: 8, smoothing: 20, detail: 90, simplification: 15, cornerDetection: 0.9, minRadius: 1 },
+  illustration: { colorCount: 16, smoothing: 45, detail: 75, simplification: 30, cornerDetection: 0.7 },
+  photography: { colorCount: 32, smoothing: 60, detail: 55, simplification: 45, cornerDetection: 0.4 },
+  text: { colorCount: 2, smoothing: 5, detail: 95, simplification: 5, cornerDetection: 1, minRadius: 0 },
+};
+
+/** Aplica el perfil del modo elegido. "auto" usa el tipo detectado por el
+ *  análisis; si no hay certeza, no toca nada. */
+function applyMode(opts: VectorOptions, kind: ImageAnalysis["kind"]): VectorOptions {
+  const mode = opts.mode === "auto" ? kindToMode(kind) : opts.mode;
+  const profile = MODE_PROFILES[mode];
+  return profile ? { ...opts, ...profile } : opts;
+}
+
+function kindToMode(kind: ImageAnalysis["kind"]): VectorOptions["mode"] {
+  if (kind === "logo" || kind === "sticker") return "logo";
+  if (kind === "photography") return "photography";
+  if (kind === "text" || kind === "drawing") return "text";
+  if (kind === "illustration") return "illustration";
+  return "auto";
 }
 
 function toHex(c: RGB): string {
@@ -87,7 +127,6 @@ export function vectorize(
   options: Partial<VectorOptions> = {},
   onProgress?: ProgressFn
 ): TraceResult {
-  const opts: VectorOptions = { ...DEFAULT_VECTOR_OPTIONS, ...options };
   const id = `vec-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const emit = (stage: TraceProgress["stage"], percent: number, message: string) =>
     onProgress?.({ id, stage, percent, message });
@@ -95,6 +134,7 @@ export function vectorize(
 
   emit("analysis", 5, "Analizando imagen…");
   const analysis: ImageAnalysis = analyzeImage(rgba, width, height);
+  const opts: VectorOptions = applyMode({ ...DEFAULT_VECTOR_OPTIONS, ...options }, analysis.kind);
 
   emit("preprocess", 20, "Preprocesando…");
   let work: Uint8ClampedArray = new Uint8ClampedArray(rgba);
@@ -105,7 +145,9 @@ export function vectorize(
   }
   if (opts.removeBackground) {
     const bg = detectBorderBackground(work, width, height);
-    work = removeColor(work, bg, Math.max(24, 64 - opts.minRadius), true);
+    // "Transparencia" conserva el fundido suave del borde; sin ella el fondo
+    // se recorta en seco (binario), que es lo que se espera para imprimir.
+    work = removeColor(work, bg, Math.max(24, 64 - opts.minRadius), opts.transparent);
   }
 
   emit("quantize", 40, "Cuantizando colores…");
@@ -125,8 +167,7 @@ export function vectorize(
     }
   }
 
-  const colorCount = opts.mode === "photography" ? Math.max(opts.colorCount, 32) : opts.colorCount;
-  const palette: RGB[] = opaqueCount > 0 ? medianCut(rgbIn, Math.max(2, colorCount)) : [];
+  const palette: RGB[] = opaqueCount > 0 ? medianCut(rgbIn, Math.max(2, opts.colorCount)) : [];
 
   for (let p = 0; p < width * height; p++) {
     if (alphaIndex[p] === 255) continue;
@@ -185,6 +226,21 @@ export function vectorize(
   }
 
   layers.sort((a, b) => b.coverage - a.coverage);
+
+  // "Máx. curvas" recorta las capas de menor cobertura hasta entrar en el tope.
+  // 0 = sin límite. Se conservan siempre al menos las dos capas dominantes.
+  if (opts.maxCurves > 0) {
+    let acc = 0;
+    let keep = 0;
+    for (const l of layers) {
+      if (keep >= 2 && acc + l.curveCount > opts.maxCurves) break;
+      acc += l.curveCount;
+      keep++;
+    }
+    layers.splice(keep);
+    totalCurves = acc;
+    totalNodes = layers.reduce((sum, l) => sum + (l.path.match(/[CLM]/gi) || []).length, 0);
+  }
 
   emit("optimize", 85, "Ensamblando SVG…");
   const body = layers.map((l) => `\t<path d="${l.path}" fill="${l.hex}" fill-rule="evenodd"/>`).join("\n");

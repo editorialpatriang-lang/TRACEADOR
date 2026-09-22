@@ -3,7 +3,7 @@
  * transparencia, fondo) sobre un buffer RGBA. Opera muestreando para ser rápido.
  */
 import { ImageAnalysis } from "@/types";
-import { hexToRgb, rgbToHex, rgbDistance, luminance, colorName, isNearWhite } from "@/utils/color";
+import { hexToRgb, rgbDistance, luminance, isNearWhite } from "@/utils/color";
 import { classifyImage } from "./classify";
 
 const SAMPLE_STEP = 3;
@@ -106,31 +106,6 @@ function detectBackground(hist: { list: { hex: string }[] }) {
   const top = hist.list[0];
   if (top && top.hex) return { type: "solid" as const, color: top.hex };
   return { type: "textured" as const, color: undefined };
-}
-
-/** Convierte un buffer RGBA a luminancia (0..255). */
-export function luminanceBuffer(rgba: Uint8ClampedArray, w: number, h: number): Uint8Array {
-  const out = new Uint8Array(w * h);
-  for (let i = 0, p = 0; i < rgba.length; i += 4, p++) out[p] = luminance(rgba[i], rgba[i + 1], rgba[i + 2]);
-  return out;
-}
-
-/** Distancia de color media entre píxeles adyacentes (0..441). */
-export function averageEdgeContrast(rgba: Uint8ClampedArray, w: number, h: number): number {
-  let sum = 0;
-  let n = 0;
-  for (let y = 1; y < h; y += 2) {
-    for (let x = 1; x < w; x += 2) {
-      const i = (y * w + x) * 4;
-      const up = ((y - 1) * w + x) * 4;
-      sum += rgbDistance(
-        { r: rgba[i], g: rgba[i + 1], b: rgba[i + 2] },
-        { r: rgba[up], g: rgba[up + 1], b: rgba[up + 2] }
-      );
-      n++;
-    }
-  }
-  return n ? sum / n : 0;
 }
 
 /**

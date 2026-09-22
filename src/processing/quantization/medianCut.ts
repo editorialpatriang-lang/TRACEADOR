@@ -142,7 +142,3 @@ export function applyPalette(data: Uint8ClampedArray | Uint8Array, palette: RGB[
   return { quantized, indices };
 }
 
-/** Paleta a array de hex (para capas y exportación). */
-export function paletteToStrings(palette: RGB[]): string[] {
-  return palette.map((c) => rgbToHex(c.r, c.g, c.b));
-}

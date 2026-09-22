@@ -24,6 +24,8 @@ export interface TraceParams {
   background: string;
   width: number | null;
   height: number | null;
+  /** false = descarta los contornos internos (agujeros) y deja la forma sólida. */
+  detectHoles: boolean;
 }
 
 export const DEFAULT_TRACE_PARAMS: TraceParams = {
@@ -38,6 +40,7 @@ export const DEFAULT_TRACE_PARAMS: TraceParams = {
   background: "transparent",
   width: null,
   height: null,
+  detectHoles: true,
 };
 
 /** Curva Bézier que describe un trazado cerrado. */
@@ -870,7 +873,7 @@ export function traceLuminance(
 ): TracedPath[] {
   const p: TraceParams = { ...DEFAULT_TRACE_PARAMS, ...params };
   const bm = new Bitmap(width, height, luminance);
-  const paths = bmToPathlist(bm, p);
+  const paths = bmToPathlist(bm, p).filter((path) => p.detectHoles || path.sign === "+");
   for (const path of paths) processPath(path, p);
   return paths;
 }

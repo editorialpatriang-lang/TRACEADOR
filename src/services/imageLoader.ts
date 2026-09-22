@@ -8,9 +8,14 @@ export interface LoadedImage {
   height: number;
   name: string;
   mime: string;
+  /** true si la imagen se redujo para trazar (el vector sale igual de nítido). */
+  downscaled: boolean;
+  /** tamaño original antes de reducir, para informar al usuario. */
+  originalWidth: number;
+  originalHeight: number;
 }
 
-const MAX_DIMENSION = 2048; // límite para un rendimiento razonable
+const MAX_DIMENSION = 1500; // trazar por encima de esto no mejora el vector y multiplica el tiempo
 
 function decodeViaImageBitmap(file: Blob): Promise<ImageBitmap> {
   if (typeof createImageBitmap === "function") {
@@ -30,7 +35,10 @@ export async function loadImageFile(file: File): Promise<LoadedImage> {
   }
 
   let { width, height } = bitmap;
-  // Reducir si excede el límite para mantener el rendimiento
+  const originalWidth = width;
+  const originalHeight = height;
+  // Reducir si excede el límite: el vector resultante es igual de nítido y el
+  // trazado es varias veces más rápido.
   const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
   const w = Math.max(1, Math.round(width * scale));
   const h = Math.max(1, Math.round(height * scale));
@@ -47,6 +55,9 @@ export async function loadImageFile(file: File): Promise<LoadedImage> {
     height: h,
     name: file.name,
     mime: file.type || "image/png",
+    downscaled: scale < 1,
+    originalWidth,
+    originalHeight,
   };
 }
 
