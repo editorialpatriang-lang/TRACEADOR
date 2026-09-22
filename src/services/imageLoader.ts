@@ -15,7 +15,7 @@ export interface LoadedImage {
   originalHeight: number;
 }
 
-// invalidate cache 2026-09-22 v2
+// invalidate cache 2026-09-22
 const MAX_DIMENSION = 1500; // trazar por encima de esto no mejora el vector y multiplica el tiempo
 
 function decodeViaImageBitmap(file: Blob): Promise<ImageBitmap> {
